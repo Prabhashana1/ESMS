@@ -2,10 +2,10 @@
 <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
   
   <!-- Login Card container -->
-  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-lg">
     
     <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-gray-800">ESMS</h2>
+      <h2 class="text-4xl font-bold my-5 text-gray-800">ESMS</h2>
       <p class="text-gray-500 mt-2">Employee Salary Management System</p>
     </div>
 
@@ -14,11 +14,15 @@
       
       <!-- Username Field -->
       <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+        <div class="p-2 flex items-center gap-2">
+
+          <i class="fa-solid fa-circle-user max-w-12 max-h-12"></i>
+          <label class="block text-gray-700 text-lg font-bold ">Username</label>
+        </div>
         <input 
           type="text" 
           formControlName="username" 
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-400 transition "
           placeholder="Enter your username">
         
         <!-- Frontend Validation Alert -->
@@ -29,12 +33,16 @@
       </div>
 
       <!-- Password Field -->
-      <div class="mb-6">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+      <div class="mb-6 ">
+        <div class="p-2 flex items-center gap-2">
+
+          <i class="fa-solid fa-lock max-w-12 max-h-12"></i>
+          <label class="block text-gray-700 text-lg font-bold ">Password</label>
+        </div>
         <input 
           type="password" 
           formControlName="password" 
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500  hover:border-gray-400 transition"
           placeholder="Enter your password">
         
         <!-- Frontend Validation Alert -->
@@ -48,7 +56,7 @@
       <button 
         type="submit" 
         [disabled]="loginForm.invalid || isLoading" 
-        class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition duration-200 flex items-center justify-center gap-2">
+        class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-blue-600 disabled:cursor-not-allowed transition duration-200 flex items-center justify-center gap-2">
         
         <!-- Not Loading State -->
         <span *ngIf="!isLoading">Sign In</span>

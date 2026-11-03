@@ -1,0 +1,87 @@
+<div class="min-h-screen bg-slate-50">
+  <!-- Backdrop for the mobile menu -->
+  <div *ngIf="sidebarOpen" class="fixed inset-0 z-30 bg-ink-950/60 lg:hidden" (click)="closeSidebar()" aria-hidden="true"></div>
+
+  <!-- Sidebar -->
+  <aside
+    id="sidebar"
+    aria-label="Main navigation"
+    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-ink-900 transition-transform duration-200 motion-reduce:transition-none lg:translate-x-0"
+    [ngClass]="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+  >
+    <div class="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-5">
+      <div class="flex items-center gap-3">
+        <span class="grid h-9 w-9 place-items-center rounded-lg bg-brand-600 text-base font-extrabold text-white">E</span>
+        <div class="leading-tight">
+          <p class="text-sm font-semibold text-white">ESMS</p>
+          <p class="text-xs text-slate-400">Mega Supply (PVT) LTD</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="-mr-2 rounded-md p-2 text-slate-400 hover:bg-white/10 hover:text-white lg:hidden"
+        aria-label="Close navigation"
+        (click)="closeSidebar()"
+      >
+        <app-icon name="x" [size]="18"></app-icon>
+      </button>
+    </div>
+
+    <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+      <div *ngFor="let group of navGroups">
+        <p class="mb-2 px-3 text-xs font-medium text-slate-500">{{ group.label }}</p>
+        <ul class="space-y-1">
+          <li *ngFor="let item of group.items">
+            <a [routerLink]="item.path" routerLinkActive="nav-link-active" class="nav-link" (click)="closeSidebar()">
+              <app-icon [name]="item.icon" [size]="18"></app-icon>
+              {{ item.label }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="shrink-0 border-t border-white/10 p-3">
+      <div class="flex items-center gap-3 rounded-lg px-2 py-2">
+        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-600 text-sm font-semibold text-white">{{ initials }}</span>
+        <div class="min-w-0 flex-1 leading-tight">
+          <p class="truncate text-sm font-medium text-white">{{ displayName }}</p>
+          <p class="text-xs text-slate-400">{{ roleLabel }}</p>
+        </div>
+        <button
+          type="button"
+          class="rounded-md p-2 text-slate-400 hover:bg-white/10 hover:text-white"
+          aria-label="Sign out"
+          title="Sign out"
+          (click)="signOut()"
+        >
+          <app-icon name="logout" [size]="18"></app-icon>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Page area -->
+  <div class="lg:pl-64">
+    <header
+      class="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/90 px-4 backdrop-blur sm:px-6 lg:px-8"
+    >
+      <button
+        type="button"
+        class="-ml-2 rounded-md p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
+        aria-label="Open navigation"
+        aria-controls="sidebar"
+        [attr.aria-expanded]="sidebarOpen"
+        (click)="sidebarOpen = true"
+      >
+        <app-icon name="menu"></app-icon>
+      </button>
+      <h1 class="text-lg font-semibold text-slate-900">{{ pageTitle$ | async }}</h1>
+      <p class="ml-auto hidden text-sm text-slate-500 sm:block">{{ today | date: 'EEEE, d MMMM y' }}</p>
+    </header>
+
+    <main class="px-4 py-6 sm:px-6 lg:px-8">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
