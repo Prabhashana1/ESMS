@@ -9,13 +9,21 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { UserComponent } from './components/user/user.component';
+import { UsersComponent } from './components/users/users.component';
+import { AttendanceComponent } from './components/attendance/attendance.component';
+import { LeaveComponent } from './components/leave/leave.component';
+import { SalaryComponent } from './components/salary/salary.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     DashboardComponent,
-    UserComponent
+    UserComponent,
+    UsersComponent,
+    AttendanceComponent,
+    LeaveComponent,
+    SalaryComponent
   ],
   imports: [
     BrowserModule,

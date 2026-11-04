@@ -7,8 +7,8 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  
-  private apiUrl = 'http://localhost:8080/api/v1/auth'; 
+
+  private apiUrl = 'http://localhost:8080/api/v1/auth';
 
   constructor(private http: HttpClient, private router: Router) { }
 
@@ -30,6 +30,19 @@ export class AuthService {
     const currentRole = localStorage.getItem('userRole');
     if (!currentRole) return false;
     return expectedRoles.includes(currentRole);
+  }
+
+
+  getRole(): string | null {
+    return localStorage.getItem('userRole');
+  }
+
+  isOwner(): boolean {
+    return this.getRole() === 'OWNER';
+  }
+
+  isEmployee(): boolean {
+    return this.getRole() === 'EMPLOYEE';
   }
 
   logout(): void {
