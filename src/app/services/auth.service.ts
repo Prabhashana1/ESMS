@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:8080/api/v1/auth';
+  private readonly apiUrl = 'http://localhost:8080/api/v1/auth';
 
   constructor(private http: HttpClient, private router: Router) { }
 
@@ -16,7 +16,7 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/login`, credentials);
   }
 
-  // Token, Role සහ Username සේව් කරගැනීම
+
   saveToken(token: string, role: string, username?: string): void {
     localStorage.setItem('token', token);
     localStorage.setItem('userRole', role);
@@ -33,7 +33,6 @@ export class AuthService {
     return localStorage.getItem('username');
   }
 
-  // ShellComponent එකේ Error එක නැති කිරීමට currentUser getter එකක් එක් කිරීම:
   get currentUser(): { fullName: string; role: string } | null {
     const token = this.getToken();
     if (!token) return null;
