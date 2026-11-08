@@ -2,8 +2,9 @@ import { Component, HostListener } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 
-import { AuthService } from '../../core/services/auth.service';
+
 import { IconName } from '../../shared/icon/icon.component';
+import { AuthService } from 'src/app/services/auth.service';
 
 interface NavItem {
   label: string;
@@ -28,25 +29,18 @@ export class ShellComponent {
       items: [{ label: 'Dashboard', path: '/dashboard', icon: 'grid' }],
     },
     {
-      label: 'Workforce',
+      label: 'Management',
       items: [
-        { label: 'Employees', path: '/employees', icon: 'users' },
-        { label: 'Positions', path: '/positions', icon: 'briefcase' },
+        { label: 'Users', path: '/users', icon: 'users' },
         { label: 'Attendance', path: '/attendance', icon: 'clock' },
-        { label: 'Leave requests', path: '/leave', icon: 'calendar' },
+        { label: 'Leave Requests', path: '/leave', icon: 'calendar' },
       ],
     },
     {
       label: 'Payroll',
       items: [
-        { label: 'Loans & advances', path: '/loans', icon: 'banknote' },
-        { label: 'Salary management', path: '/salary', icon: 'coins' },
-        { label: 'Pay slips & reports', path: '/reports', icon: 'document' },
+        { label: 'Salary & Payslips', path: '/salary', icon: 'coins' },
       ],
-    },
-    {
-      label: 'System',
-      items: [{ label: 'Settings', path: '/settings', icon: 'sliders' }],
     },
   ];
 
@@ -70,7 +64,7 @@ export class ShellComponent {
   }
 
   get roleLabel(): string {
-    return this.auth.currentUser?.role === 'ADMIN' ? 'Administrator' : 'Employee';
+    return this.auth.currentUser?.role === 'OWNER' ? 'Owner' : 'Employee';
   }
 
   get initials(): string {

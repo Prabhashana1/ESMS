@@ -13,6 +13,9 @@ import { UsersComponent } from './components/users/users.component';
 import { AttendanceComponent } from './components/attendance/attendance.component';
 import { LeaveComponent } from './components/leave/leave.component';
 import { SalaryComponent } from './components/salary/salary.component';
+import { FormFieldComponent } from './shared/form-field/form-field.component';
+import { IconComponent } from './shared/icon/icon.component';
+import { ShellComponent } from './layout/shell/shell.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +26,10 @@ import { SalaryComponent } from './components/salary/salary.component';
     UsersComponent,
     AttendanceComponent,
     LeaveComponent,
-    SalaryComponent
+    SalaryComponent,
+    ShellComponent,   
+    IconComponent,    
+    FormFieldComponent 
   ],
   imports: [
     BrowserModule,
