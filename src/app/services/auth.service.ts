@@ -16,15 +16,32 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/login`, credentials);
   }
 
-  saveToken(token: string, role: string): void {
+  // Token, Role සහ Username සේව් කරගැනීම
+  saveToken(token: string, role: string, username?: string): void {
     localStorage.setItem('token', token);
     localStorage.setItem('userRole', role);
+    if (username) {
+      localStorage.setItem('username', username);
+    }
   }
 
   getToken(): string | null {
     return localStorage.getItem('token');
   }
 
+  getUsername(): string | null {
+    return localStorage.getItem('username');
+  }
+
+  // ShellComponent එකේ Error එක නැති කිරීමට currentUser getter එකක් එක් කිරීම:
+  get currentUser(): { fullName: string; role: string } | null {
+    const token = this.getToken();
+    if (!token) return null;
+    return {
+      fullName: this.getUsername() ?? 'User',
+      role: this.getRole() ?? 'EMPLOYEE'
+    };
+  }
 
   hasAnyRole(expectedRoles: string[]): boolean {
     const currentRole = localStorage.getItem('userRole');
@@ -48,6 +65,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('username');
     this.router.navigate(['/login']);
   }
 }
