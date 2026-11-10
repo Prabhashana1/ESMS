@@ -31,7 +31,6 @@ export interface UserUpdateDto {
   role: string;
 }
 
-// 4. Password එක Reset කරද්දී යවන දත්ත (PasswordResetDto)
 export interface PasswordResetDto {
   newPassword: string;
 }
