@@ -8,7 +8,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { UserComponent } from './components/user/user.component';
+// import { UserComponent } from './components/user/user.component';
 import { UsersComponent } from './components/users/users.component';
 import { AttendanceComponent } from './components/attendance/attendance.component';
 import { LeaveComponent } from './components/leave/leave.component';
@@ -22,7 +22,7 @@ import { ShellComponent } from './layout/shell/shell.component';
     AppComponent,
     LoginComponent,
     DashboardComponent,
-    UserComponent,
+    // UserComponent, 
     UsersComponent,
     AttendanceComponent,
     LeaveComponent,

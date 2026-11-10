@@ -1,10 +1,18 @@
 import { Component, HostListener } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter, map, startWith } from 'rxjs';
+import { filter, map, startWith } from 'rxjs';  
 
 
 import { IconName } from '../../shared/icon/icon.component';
 import { AuthService } from 'src/app/services/auth.service';
+// import { Component } from '@angular/core';
+import { PageTitleService } from '../../services/page-title.service';
+import { OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {  RouterOutlet, RouterLink, RouterLinkActive, } from '@angular/router';
+
+
+
 
 interface NavItem {
   label: string;
@@ -21,6 +29,7 @@ interface NavGroup {
 @Component({
   selector: 'app-shell',
   templateUrl: './shell.component.html',
+  
 })
 export class ShellComponent {
   readonly navGroups: NavGroup[] = [
@@ -54,6 +63,7 @@ export class ShellComponent {
   );
 
   constructor(
+    public pageTitleService: PageTitleService,
     private readonly auth: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
