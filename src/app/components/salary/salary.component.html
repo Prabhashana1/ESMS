@@ -1,0 +1,329 @@
+<div class="max-w-7xl mx-auto space-y-6">
+
+  <!-- Page Header -->
+  <div>
+    <h2 class="text-2xl font-bold text-gray-800">Salary & Payroll Management</h2>
+    <p class="text-sm text-gray-500">
+      {{ authService.isOwner() ? 'Configure employee salary structures, advances, and monthly payroll' : 'View your salary structure, advances, and monthly payslips' }}
+    </p>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="flex flex-wrap gap-2 border-b border-gray-200 pb-3">
+    <button (click)="activeTab = 'structures'"
+      [ngClass]="activeTab === 'structures' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'"
+      class="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-200 transition">
+      {{ authService.isOwner() ? 'Salary Structures' : 'My Salary Package' }}
+    </button>
+
+    <button (click)="activeTab = 'advances'"
+      [ngClass]="activeTab === 'advances' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'"
+      class="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-200 transition">
+      Salary Advances
+    </button>
+
+    <button (click)="activeTab = 'payroll'"
+      [ngClass]="activeTab === 'payroll' ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'"
+      class="px-4 py-2 rounded-lg text-sm font-semibold border border-gray-200 transition">
+      {{ authService.isOwner() ? 'Monthly Payroll' : 'My Payslips' }}
+    </button>
+  </div>
+
+  <!-- Success Banner -->
+  <div *ngIf="successMessage"
+    class="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded-lg flex justify-between items-center text-sm font-medium">
+    <span>{{ successMessage }}</span>
+    <button (click)="successMessage = ''" class="text-green-700 font-bold ml-4">✕</button>
+  </div>
+
+
+  <div *ngIf="activeTab === 'structures'">
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="bg-white rounded-lg p-12 text-center text-gray-500 border border-gray-200">
+      Loading salary data... Please wait.
+    </div>
+
+    <!-- A. OWNER VIEW (Table of Active Users & Their Salary Status) -->
+    <div *ngIf="!isLoading && authService.isOwner()" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase">
+            <th class="p-4">Employee</th>
+            <th class="p-4">Employment Type</th>
+            <th class="p-4">Base Pay</th>
+            <th class="p-4">OT Rate / Hr</th>
+            <th class="p-4 text-center">EPF / ETF</th>
+            <th class="p-4">Bank Details</th>
+            <th class="p-4 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 text-sm">
+
+          <tr *ngFor="let user of users" class="hover:bg-gray-50 transition">
+            <!-- Employee -->
+            <td class="p-4">
+              <p class="font-semibold text-gray-800">{{ user.fullName }}</p>
+              <p class="text-xs text-gray-500">{{ user.designation }} (@{{ user.username }})</p>
+            </td>
+
+            <!-- Use ng-container to hold lookup result cleanly -->
+            <ng-container *ngIf="getStructureForUser(user.id) as s; else notConfigured">
+              <!-- Employment Type -->
+              <td class="p-4">
+                <span
+                  [ngClass]="s.employmentType === 'PERMANENT' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'"
+                  class="px-2.5 py-1 rounded-full text-xs font-semibold">
+                  {{ s.employmentType === 'PERMANENT' ? 'Permanent' : 'Daily Wage' }}
+                </span>
+              </td>
+
+              <!-- Basic or Daily Pay -->
+              <td class="p-4 font-semibold text-gray-800">
+                <span *ngIf="s.employmentType === 'PERMANENT'">
+                  LKR {{ s.basicSalary | number:'1.2-2' }} <span class="text-xs font-normal text-gray-500">/mo</span>
+                </span>
+                <span *ngIf="s.employmentType === 'DAILY_WAGE'">
+                  LKR {{ s.dailyRate | number:'1.2-2' }} <span class="text-xs font-normal text-gray-500">/day</span>
+                </span>
+              </td>
+
+              <!-- OT Rate -->
+              <td class="p-4 text-gray-700">
+                LKR {{ s.hourlyOvertimeRate | number:'1.2-2' }}
+              </td>
+
+              <!-- EPF / ETF -->
+              <td class="p-4 text-center">
+                <span
+                  [ngClass]="s.epfEtfEligible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'"
+                  class="px-2.5 py-1 rounded-full text-xs font-semibold">
+                  {{ s.epfEtfEligible ? 'Eligible' : 'No' }}
+                </span>
+              </td>
+
+              <!-- Bank Info -->
+              <td class="p-4">
+                <p class="text-gray-800 font-medium text-xs">{{ s.bankName || 'Not set' }}</p>
+                <p class="text-gray-500 text-xs">{{ s.accountNumber || '-' }}</p>
+              </td>
+
+              <!-- Edit Button -->
+              <td class="p-4 text-center">
+                <button (click)="openSetupModal(user)"
+                  class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-xs font-semibold transition">
+                  Edit Setup
+                </button>
+              </td>
+            </ng-container>
+
+            <!-- If Not Configured Yet -->
+            <ng-template #notConfigured>
+              <td colspan="5" class="p-4">
+                <span class="bg-yellow-100 text-yellow-800 px-2.5 py-1 rounded-full text-xs font-semibold">
+                  Salary Structure Not Configured
+                </span>
+              </td>
+              <td class="p-4 text-center">
+                <button (click)="openSetupModal(user)"
+                  class="px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded text-xs font-semibold transition">
+                  + Configure
+                </button>
+              </td>
+            </ng-template>
+          </tr>
+
+          <tr *ngIf="users.length === 0">
+            <td colspan="7" class="p-8 text-center text-gray-500">
+              No active users found.
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!isLoading && authService.isEmployee()">
+
+      <!-- Not Configured Notice -->
+      <div *ngIf="!myStructure" class="bg-blue-50 border border-blue-200 text-blue-800 p-6 rounded-lg text-sm">
+        Your salary structure has not been configured by the Owner yet. Please check back later.
+      </div>
+
+
+      <div *ngIf="myStructure" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-3xl">
+        <div class="flex justify-between items-center border-b pb-4 mb-6">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800">{{ myStructure.fullName }}</h3>
+            <p class="text-xs text-gray-500">{{ myStructure.designation }}</p>
+          </div>
+          <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
+            {{ myStructure.employmentType === 'PERMANENT' ? 'Permanent Staff' : 'Daily Wage Staff' }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
+          <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+            <p class="text-xs text-gray-500 uppercase font-semibold">
+              {{ myStructure.employmentType === 'PERMANENT' ? 'Basic Monthly Salary' : 'Daily Wage Rate' }}
+            </p>
+            <p class="text-2xl font-bold text-gray-800 mt-1">
+              LKR {{ (myStructure.employmentType === 'PERMANENT' ? myStructure.basicSalary : myStructure.dailyRate) | number:'1.2-2' }}
+            </p>
+          </div>
+
+          <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+            <p class="text-xs text-gray-500 uppercase font-semibold">Overtime Rate (Per Hour)</p>
+            <p class="text-2xl font-bold text-gray-800 mt-1">
+              LKR {{ myStructure.hourlyOvertimeRate | number:'1.2-2' }}
+            </p>
+          </div>
+
+          <div class="p-4 rounded-lg border border-gray-200 space-y-2">
+            <p class="text-xs text-gray-500 uppercase font-semibold">Statutory & Leave Entitlements</p>
+            <p class="text-gray-700">
+              <span class="font-semibold">EPF / ETF Eligible:</span>
+              <span [ngClass]="myStructure.epfEtfEligible ? 'text-green-600 font-bold' : 'text-gray-500'">
+                {{ myStructure.epfEtfEligible ? 'Yes (8% / 12% / 3%)' : 'No' }}
+              </span>
+            </p>
+            <p class="text-gray-700"><span class="font-semibold">Annual Casual Leave:</span> {{ myStructure.annualCasualLeaveQuota }} days</p>
+            <p class="text-gray-700"><span class="font-semibold">Annual Medical Leave:</span> {{ myStructure.annualMedicalLeaveQuota }} days</p>
+          </div>
+
+          <div class="p-4 rounded-lg border border-gray-200 space-y-2">
+            <p class="text-xs text-gray-500 uppercase font-semibold">Bank Account Information</p>
+            <p class="text-gray-700"><span class="font-semibold">Bank:</span> {{ myStructure.bankName || 'Not set' }}</p>
+            <p class="text-gray-700"><span class="font-semibold">Branch:</span> {{ myStructure.bankBranch || 'Not set' }}</p>
+            <p class="text-gray-700"><span class="font-semibold">Account No:</span> {{ myStructure.accountNumber || 'Not set' }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div *ngIf="activeTab === 'advances'" class="bg-white rounded-lg p-10 text-center text-gray-500 border border-gray-200">
+    Salary Advances module will be implemented here next.
+  </div>
+
+  <div *ngIf="activeTab === 'payroll'" class="bg-white rounded-lg p-10 text-center text-gray-500 border border-gray-200">
+    Monthly Payroll & Payslips module will be implemented here next.
+  </div>
+
+</div>
+
+<div *ngIf="showSetupModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-xl p-6 max-h-[90vh] overflow-y-auto">
+
+    <div class="flex justify-between items-center border-b pb-3 mb-4">
+      <div>
+        <h3 class="text-lg font-bold text-gray-800">Salary Structure Setup</h3>
+        <p class="text-xs text-gray-500">{{ selectedUser?.fullName }} ({{ selectedUser?.designation }})</p>
+      </div>
+      <button (click)="closeSetupModal()" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
+    </div>
+
+    <!-- Validation Error Alert -->
+    <div *ngIf="formError" class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded-lg text-xs mb-4">
+      {{ formError }}
+    </div>
+
+    <form [formGroup]="structureForm" (ngSubmit)="saveStructure()" class="space-y-4">
+
+      <!-- Employment Type & EPF Eligibility -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Employment Type *</label>
+          <select formControlName="employmentType" (change)="onEmploymentTypeChange()"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="PERMANENT">Permanent (Monthly Salary)</option>
+            <option value="DAILY_WAGE">Daily Wage</option>
+          </select>
+        </div>
+
+        <div class="pt-5">
+          <label class="flex items-center gap-2 cursor-pointer text-sm font-semibold text-gray-700">
+            <input type="checkbox" formControlName="epfEtfEligible" class="w-4 h-4 text-blue-600 rounded">
+            Eligible for EPF & ETF
+          </label>
+        </div>
+      </div>
+
+      <!-- Conditional Pay Rate & OT Rate -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div *ngIf="structureForm.get('employmentType')?.value === 'PERMANENT'">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Basic Salary (LKR) *</label>
+          <input type="number" formControlName="basicSalary" min="0" step="0.01"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div *ngIf="structureForm.get('employmentType')?.value === 'DAILY_WAGE'">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Daily Rate (LKR) *</label>
+          <input type="number" formControlName="dailyRate" min="0" step="0.01"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Overtime Rate / Hour (LKR)</label>
+          <input type="number" formControlName="hourlyOvertimeRate" min="0" step="0.01"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- Annual Leave Quotas -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Annual Casual Leave Quota</label>
+          <input type="number" formControlName="annualCasualLeaveQuota" min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Annual Medical Leave Quota</label>
+          <input type="number" formControlName="annualMedicalLeaveQuota" min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+      </div>
+
+      <!-- Bank Details (Encrypted in Backend) -->
+      <div class="border-t pt-4">
+        <p class="text-xs font-bold text-gray-500 uppercase mb-3">Bank Account Details (Encrypted in DB)</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Bank Name</label>
+            <input type="text" formControlName="bankName" placeholder="e.g. Commercial Bank"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Branch</label>
+            <input type="text" formControlName="bankBranch" placeholder="e.g. Kandy"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Account Number</label>
+            <input type="text" formControlName="accountNumber" placeholder="e.g. 8001234567"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Buttons -->
+      <div class="flex justify-end gap-3 pt-4 border-t">
+        <button type="button" (click)="closeSetupModal()"
+          class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold">
+          Cancel
+        </button>
+        <button type="submit" [disabled]="structureForm.invalid || isSaving"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg text-sm font-semibold">
+          {{ isSaving ? 'Saving...' : 'Save Salary Structure' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
