@@ -2,17 +2,9 @@ import { Component, HostListener } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';  
 
-
 import { IconName } from '../../shared/icon/icon.component';
 import { AuthService } from 'src/app/services/auth.service';
-// import { Component } from '@angular/core';
 import { PageTitleService } from '../../services/page-title.service';
-import { OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {  RouterOutlet, RouterLink, RouterLinkActive, } from '@angular/router';
-
-
-
 
 interface NavItem {
   label: string;
@@ -25,13 +17,12 @@ interface NavGroup {
   items: NavItem[];
 }
 
-/** The signed-in layout: sidebar, top bar and the page area. */
 @Component({
   selector: 'app-shell',
   templateUrl: './shell.component.html',
-  
 })
 export class ShellComponent {
+
   readonly navGroups: NavGroup[] = [
     {
       label: 'Overview',
@@ -64,24 +55,35 @@ export class ShellComponent {
 
   constructor(
     public pageTitleService: PageTitleService,
-    private readonly auth: AuthService,
+    public auth: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
   ) {}
 
+  // 1. Dynamic User Name
   get displayName(): string {
     return this.auth.currentUser?.fullName ?? 'User';
   }
 
+  // 2. Dynamic Role Label
   get roleLabel(): string {
-    return this.auth.currentUser?.role === 'OWNER' ? 'Owner' : 'Employee';
+    return this.auth.isOwner() ? 'Owner' : 'Employee';
   }
 
+  // 3. Dynamic Avatar Initials (උදා: Kamal Perera -> KP, Admin -> AD)
   get initials(): string {
-    const parts = this.displayName.split(/\s+/).filter(Boolean);
-    const first = parts[0]?.charAt(0) ?? '';
-    const last = parts.length > 1 ? (parts[parts.length - 1]?.charAt(0) ?? '') : '';
-    return (first + last).toUpperCase();
+    const name = this.displayName.trim();
+    if (!name || name === 'User') return 'U';
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length > 1) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }
+
+  // HTML එකේ function එකක් විදියට කතා කළත් වැඩ කරන්න:
+  getDisplayName(): string {
+    return this.displayName;
   }
 
   @HostListener('document:keydown.escape')
