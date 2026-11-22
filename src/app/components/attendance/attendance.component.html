@@ -129,11 +129,11 @@
 
         <!-- Filter Controls -->
         <div class="flex items-center gap-2">
-          <select [(ngModel)]="selectedMonth" (change)="loadMyHistory()"
+          <select [value]="selectedMonth" (change)="selectedMonth = $any($event.target).value; loadMyHistory()"
                   class="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500">
             <option *ngFor="let m of months" [value]="m.value">{{ m.name }}</option>
           </select>
-          <input type="number" [(ngModel)]="selectedYear" (change)="loadMyHistory()" min="2020" max="2030"
+          <input type="number" [value]="selectedYear" (change)="selectedYear = +$any($event.target).value; loadMyHistory()" min="2020" max="2030"
                  class="w-24 px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-indigo-500" />
         </div>
       </div>
