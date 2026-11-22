@@ -110,7 +110,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
 
   loadTodayAttendance(): void {
     this.attendanceService.getTodayAttendance().subscribe({
-      next: (data) => {
+      next: (data: AttendanceDto | null) => {
         this.todayAttendance = data;
       },
       error: () => {
@@ -122,11 +122,11 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   loadMyHistory(): void {
     this.isLoading = true;
     this.attendanceService.getMyMonthlyHistory(this.selectedYear, this.selectedMonth).subscribe({
-      next: (data) => {
+      next: (data: AttendanceDto[]) => {
         this.myHistory = data;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.errorMessage = err.error?.message || 'Failed to load attendance history.';
         this.isLoading = false;
       }
@@ -137,7 +137,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
     this.clearMessages();
     this.isActionLoading = true;
     this.attendanceService.checkIn().subscribe({
-      next: (data) => {
+      next: (data: AttendanceDto) => {
         this.todayAttendance = data;
         this.successMessage = 'Check-in successful! Have a productive day.';
         this.isActionLoading = false;
@@ -146,7 +146,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
           this.loadDailyAttendance();
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.errorMessage = err.error?.message || 'Check-in failed.';
         this.isActionLoading = false;
       }
@@ -157,7 +157,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
     this.clearMessages();
     this.isActionLoading = true;
     this.attendanceService.checkOut().subscribe({
-      next: (data) => {
+      next: (data: AttendanceDto) => {
         this.todayAttendance = data;
         this.successMessage = `Check-out successful! Total hours worked: ${data.workingHours} hrs.`;
         this.isActionLoading = false;
@@ -166,7 +166,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
           this.loadDailyAttendance();
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.errorMessage = err.error?.message || 'Check-out failed.';
         this.isActionLoading = false;
       }
@@ -178,11 +178,11 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   loadDailyAttendance(): void {
     this.isLoading = true;
     this.attendanceService.getDailyAttendance(this.selectedDailyDate).subscribe({
-      next: (data) => {
+      next: (data: AttendanceDto[]) => {
         this.dailyAttendances = data;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.errorMessage = err.error?.message || 'Failed to load daily sheet.';
         this.isLoading = false;
       }
@@ -190,16 +190,22 @@ export class AttendanceComponent implements OnInit, OnDestroy {
   }
 
   loadUsers(): void {
-    this.userService.getUsers().subscribe({
-      next: (data) => {
+    this.userService.getAllUsers().subscribe({
+      next: (data: UserDto[]) => {
         this.users = data;
+      },
+      error: () => {
+        this.users = [];
       }
     });
   }
 
-  onDailyDateChange(event: any): void {
-    this.selectedDailyDate = event.target.value;
-    this.loadDailyAttendance();
+  onDailyDateChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input) {
+      this.selectedDailyDate = input.value;
+      this.loadDailyAttendance();
+    }
   }
 
   openManualModal(): void {
@@ -232,10 +238,10 @@ export class AttendanceComponent implements OnInit, OnDestroy {
       date: formVal.date,
       status: formVal.status,
       checkInTime: (formVal.status !== 'ABSENT' && formVal.status !== 'ON_LEAVE' && formVal.checkInTime) 
-        ? `${formVal.checkInTime}:00` 
+        ? (formVal.checkInTime.length === 5 ? `${formVal.checkInTime}:00` : formVal.checkInTime)
         : null,
       checkOutTime: (formVal.status !== 'ABSENT' && formVal.status !== 'ON_LEAVE' && formVal.checkOutTime) 
-        ? `${formVal.checkOutTime}:00` 
+        ? (formVal.checkOutTime.length === 5 ? `${formVal.checkOutTime}:00` : formVal.checkOutTime)
         : null
     };
 
@@ -248,7 +254,7 @@ export class AttendanceComponent implements OnInit, OnDestroy {
         this.loadTodayAttendance();
         this.loadMyHistory();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.errorMessage = err.error?.message || 'Failed to save attendance.';
         this.isSavingManual = false;
       }
